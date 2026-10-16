@@ -1,0 +1,13 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	// Static files only: no Worker script runs, so requests cost nothing and never hit CPU limits.
+	"name": "ghl-chat",
+	// "New PPC Sites", the account the client sites deploy to.
+	"account_id": "fad3152a6b78d0b9e2e082442baeb758",
+	"compatibility_date": "2026-10-01",
+	"assets": {
+		"directory": "./public"
+	}
+	// TODO (deploy): once the hostname is chosen, add a custom domain route:
+	// "routes": [{ "pattern": "chat.example.com", "custom_domain": true }]
+}

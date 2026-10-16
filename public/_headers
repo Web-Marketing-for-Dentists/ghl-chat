@@ -1,0 +1,9 @@
+# Short cache so a fix reaches every site within five minutes; stale-while-revalidate keeps the
+# script instant for repeat visitors while the fresh copy loads in the background.
+/v1.js
+  Cache-Control: public, max-age=300, stale-while-revalidate=86400
+  Access-Control-Allow-Origin: *
+  X-Content-Type-Options: nosniff
+
+/
+  X-Robots-Tag: noindex, nofollow

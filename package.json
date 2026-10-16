@@ -1,0 +1,14 @@
+{
+  "name": "ghl-chat",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Hosted GoHighLevel chat loader shared by WM4D's Astro sites. Cloudflare Workers static assets.",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.59.2"
+  },
+  "packageManager": "pnpm@10.16.1"
+}

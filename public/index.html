@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>GHL Chat Test</title>
+  <style>
+    :root { --ink: #1f2429; --muted: #5b636b; --line: #d9dde1; --bg: #f6f7f8; --bar: #414852; --accent: #0097ab; }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 24px 16px 96px; background: var(--bg); color: var(--ink); font: 16px/1.6 system-ui, sans-serif; }
+    main { max-width: 680px; margin: 0 auto; }
+    h1 { margin: 0 0 4px; font-size: 1.6rem; }
+    p { color: var(--muted); }
+    form { display: grid; gap: 12px; margin: 24px 0; padding: 16px; background: #fff; border: 1px solid var(--line); border-radius: 8px; }
+    label { display: grid; gap: 4px; font-size: 0.9rem; font-weight: 600; }
+    input, select { padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; font: inherit; }
+    button { padding: 10px 14px; border: 0; border-radius: 6px; background: var(--accent); color: #fff; font: inherit; font-weight: 600; cursor: pointer; }
+    pre { overflow-x: auto; padding: 12px; background: #fff; border: 1px solid var(--line); border-radius: 8px; font-size: 0.82rem; }
+    #log { min-height: 3em; white-space: pre-wrap; }
+    .bar { position: fixed; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: 1fr 1fr 1fr; background: var(--bar); }
+    .bar a, .bar button { display: flex; align-items: center; justify-content: center; min-height: 56px; border-radius: 0; background: transparent; color: #fff; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.08em; text-decoration: none; text-transform: uppercase; }
+    .bar a:last-child { background: var(--accent); }
+    html[data-chat="open"] .bar { display: none; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>GHL chat test page</h1>
+    <p>Loads <code>v1.js</code> from this host with the settings below, the way a client site would. The bar at the bottom stands in for a site's sticky action bar.</p>
+
+    <form id="config">
+      <label>Widget ID <input name="widget" required placeholder="From GHL → Sites → Chat Widget → Get Code" /></label>
+      <label>Auto-open
+        <select name="autoOpen"><option>true</option><option>false</option><option>desktop</option></select>
+      </label>
+      <label>Hide bubble below (px, blank = never) <input name="hideBelow" inputmode="numeric" value="1000" /></label>
+      <button type="submit">Load chat</button>
+    </form>
+
+    <p>Events and state:</p>
+    <pre id="log">Chat not loaded.</pre>
+
+    <p>The tag this page is using:</p>
+    <pre id="tag">—</pre>
+  </main>
+
+  <nav class="bar">
+    <a href="#">Call Us</a>
+    <button type="button" data-chat-open>Chat</button>
+    <a href="#">Request Appointment</a>
+  </nav>
+
+  <script>
+    (function () {
+      var params = new URLSearchParams(location.search);
+      var form = document.getElementById("config");
+      var log = document.getElementById("log");
+      ["widget", "autoOpen", "hideBelow"].forEach(function (k) {
+        if (params.has(k)) form.elements[k].value = params.get(k);
+      });
+
+      function write(line) {
+        log.textContent = (log.textContent === "Chat not loaded." ? "" : log.textContent + "\n") +
+          new Date().toLocaleTimeString() + "  " + line;
+      }
+      document.addEventListener("ghl-chat:open", function () { write("ghl-chat:open"); });
+      document.addEventListener("ghl-chat:close", function () { write("ghl-chat:close"); });
+
+      var widget = params.get("widget");
+      if (!widget) return;
+
+      var s = document.createElement("script");
+      s.defer = true;
+      s.src = "/v1.js";
+      s.setAttribute("data-ghl-widget-id", widget);
+      s.setAttribute("data-auto-open", params.get("autoOpen") || "true");
+      if (params.get("hideBelow")) s.setAttribute("data-hide-bubble-below", params.get("hideBelow"));
+      document.getElementById("tag").textContent = s.outerHTML.replace('src="/v1.js"', 'src="' + location.origin + '/v1.js"');
+      document.body.appendChild(s);
+      write("Loading widget " + widget);
+
+      var tries = 0;
+      var t = setInterval(function () {
+        tries++;
+        if (window.leadConnector && window.leadConnector.chatWidget) { write("Widget API ready"); clearInterval(t); }
+        else if (tries > 40) { write("Widget API never appeared (check the widget ID)"); clearInterval(t); }
+      }, 500);
+    })();
+  </script>
+</body>
+</html>
